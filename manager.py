@@ -54,16 +54,16 @@ class Manager:
                 self.peers[peer]["state"] = "InDHT"
                 self.DHT.append((peer, self.peers[peer]["ipv4"], self.peers[peer]["port_p"]))
                 i += 1
-        print("DHT:")
+        print(f"DHT:")
         for entry in self.DHT:       
             print(f"{entry}")      
         #Command from manager to leader       
         command = f"set_leader {year} {self.DHT}"
         send(command, self.peers[leader_name]["ipv4"], self.peers[leader_name]["port_m"])
         
-    def dht_complete(name):
+    def dht_complete(self, name):
         if self.peers[name]["state"] == "Leader":
-            this.setUp = True
+            self.setUp = True
             return "SUCCESS"
         else:
             return "FAILURE: DHT not complete"
@@ -83,22 +83,23 @@ def recv():
         parse_command(command, ipv4)
 
 def parse_command(command, ipv4):
-    msg = command.decode('utf-8')
-    x = msg.split()
-    print(msg)
-    first = x[0] 
-    if first == 'register':
-        result = manager.register(x[1], x[2], x[3], x[4])
-        print(result)
-    elif first == 'setup_dht':
-        result = manager.setup_dht(x[1], x[2], x[3]) 
-        print(result)
-    elif first == 'dht_complete':
-        result = manager.dht_complete(x[1])
-        print(result)  
-    else:
-        print('INCORRECT COMMAND') 
-        
+    try:
+        msg = command.decode('utf-8')
+        x = msg.split()
+        print(msg)
+        first = x[0] 
+        if first == 'register':
+            result = manager.register(x[1], x[2], x[3], x[4])
+            print(result)
+        elif first == 'setup_dht':
+            manager.setup_dht(x[1], x[2], x[3]) 
+        elif first == 'dht_complete':
+            result = manager.dht_complete(x[1])
+            print(result)  
+        else:
+            print('INCORRECT COMMAND')
+    except:
+        print('INCORRECT COMMAND')
 
 def main():
     print("[STARTING] server is starting...")
