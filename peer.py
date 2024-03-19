@@ -17,19 +17,6 @@ server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 client.bind((peer_ip, int(p_port)))
 server.bind((peer_ip, int(m_port)))
 
-'''
-  DHT structure
-  {
-    (name0, IP0, P0),
-    (name1, IP1, P1),
-    (name2, IP2, P2),
-    .
-    .
-    .
-    (name_n, IP_n, P_n)
-  }
-'''
-
 class Peer:
     def __init__(self):
         self.DHT = {}
@@ -37,17 +24,15 @@ class Peer:
         self.id = None
         self.nextIP = None
         self.nextP = None
-        self.localTable = None
+        self.localTable = {}
 
     def store(self, pos ,id, entry):
-        print(self.id)
-        print(id)
-        print(pos)
         if self.id == id:
-            self.localTable[id].append({pos: entry})
-            print(self.localTable[id])
+            self.localTable[pos] = entry
+            #print(self.localTable[pos])
+            #print(f"{id} store here {entry['EVENT_ID']}")
         else:
-            command = f"store {str(pos)} {str(id)} {str(entry)}"
+            command = f"store {pos} {id} {entry}"
             send_to_client(command, self.nextIP, self.nextP)
             
     #Prime checker
@@ -69,19 +54,8 @@ class Peer:
                 s += 1
         return s
 
-    #Creates and returns dictionary from csv file
-    '''
-    data format
-    {
-      {1: {"EVENT_ID": "int"...}},
-      {2: {"EVENT_ID": "int"...}},
-      .
-      .
-      .
-      {n: {"EVENT_ID": "int"...}}}
-    }
-    '''    
-    def localData(self, year, ringSize):
+    #Creates and returns dictionary from csv file   
+    def localData(self, year):
         data = {}
         filePath = f"/afs/asu.edu/users/a/s/b/asbabbit/Data/details-{str(year)}.csv"
         lineNum = 0
@@ -92,31 +66,33 @@ class Peer:
             for entry in reader:
                 data.update({lineNum:entry})
                 lineNum += 1
-        #print(data[0])
         return data
             
-    def createTable(self, year, ringSize):
-        data = self.localData(year, ringSize)
+    def createTable(self, year):
+        data = self.localData(year)
         s = self.primeLarger(len(data))
+        for entry in data:
+            pos = int(data[entry]["EVENT_ID"]) % s
+            id = pos % self.ringSize
+            #print(f"entry: {entry}, id: {id}, pos: {pos}, eventID: {data[entry]['EVENT_ID']}")
+            self.store(pos, id, data[entry])
+        #self.printTables()
+        send_to_server(f"dht_complete test")
         
-        for i in range(len(data)):
-            pos = int(data[i]["EVENT_ID"]) % s
-            id = pos % ringSize
-            self.store(pos, id, data[i])
-        #self.ltable_print()
-        #send_to_server(f"dht_complete {self.DHT[0][0]}")
-        
-    #Print size of peer table   
-    def ptable_print(self):
-        print(f"{self.id}: {len(self.localTable)}")
-        
-    #Print size of leader table and send command for other peers to print table   
-    def ltable_print(self):
-        print(f"{self.id}: {len(self.localTable)}")
-        for id in range(1, len(self.DHT)):
-            command = "ptable_print"
-            send_to_client(command, self.DHT[id][1], self.DHT[id][2])
-            
+    #Print local peer table   
+    def printTables(self):
+        print()
+        if int(self.id) != 3:
+            print(len(self.localTable))
+            for entry in self.localTable:
+                print(f"id: {self.id}, pos:{entry}, eventID:{self.localTable[entry]['EVENT_ID']}")
+            command = "printTables"
+            send_to_client(command, self.nextIP, self.nextP)
+        else:
+            print(len(self.localTable))
+            for entry in self.localTable:
+                print(f"id: {self.id}, pos:{entry}, eventID:{self.localTable[entry]['EVENT_ID']}")         
+                        
     #Message string format: "set_peer <length of DHT> <id in DHT> <nextIP> <nextP> <YYYY> <DHT>"
     def set_peer(self, ringSize, id, nextIP, nextP, year, DHT):
         self.DHT = DHT
@@ -138,7 +114,7 @@ class Peer:
             nextP = DHT[nextId][2]
             command = f"set_peer {self.ringSize} {id} {nextIP} {nextP} {year} {DHT}"
             send_to_client(command, DHT[id][1], DHT[id][2])
-        self.createTable(year, self.ringSize)
+        self.createTable(year)
 
 peer = Peer()  
 
@@ -183,8 +159,10 @@ def parse_command(command, ipv4):
             temp = temp + element + " "
         entry = ast.literal_eval(temp) 
         peer.store(x[1], x[2], entry)
-    elif first == 'ptable_print':
-        peer.peer_table
+    elif first == 'printTables':
+        peer.printTables()
+    else:
+        print("INCORRECT COMMAND")
             
 def main():
     print("[STARTING] client is starting...")
