@@ -71,8 +71,12 @@ class Manager:
     def deregister(self, peer_name):
         if peer_name in self.DHT:
             return "FAILURE"
+        elif not peer_name in self.peers:
+            return "FAILURE"
         else:
+            print(self.peers)
             del self.peers[peer_name]
+            print(self.peers)
             return "SUCCESS"
         
 
@@ -103,7 +107,9 @@ def parse_command(command, ipv4):
             manager.setup_dht(x[1], x[2], x[3]) 
         elif first == 'dht_complete':
             result = manager.dht_complete(x[1])
-            print(result)  
+            print(result)
+        elif first == 'deregister':
+            result = manager.deregister(x[1])  
         else:
             print('INCORRECT COMMAND')
     except:

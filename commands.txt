@@ -1,0 +1,8 @@
+register test 10.120.70.118 49001 49002
+register next 10.120.70.118 49003 49004
+register help 10.120.70.118 49005 49006
+register nice 10.120.70.118 49007 49008
+setup_dht test 4 1950
+deregister next
+
+python peer.py 10.120.70.118 49000 10.120.70.118 49003 49004
