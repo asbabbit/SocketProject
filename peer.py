@@ -128,15 +128,22 @@ class Peer:
         else:
             return "FAILURE"
         
+        
     def teardown_peer(self, peer_name): #helper function for traversal of teardown_dht
-        id = 0
-        for i in range(len(self.DHT)):
-            if self.DHT[i] == peer_name:
-                id = i
-                print(self.DHT)
-                break
-        command = f"teardown_peer {self.DHT[i]}"
-        send_to_client(command, self.nextIP, self.nextP)
+        if self.DHT[0][0] == peer_name:
+            id = 0
+            for i in range(len(self.DHT)):
+                if self.DHT[i] == peer_name:
+                    id = i
+                    print(self.DHT)
+                    break
+            command = f"teardown_peer {self.DHT[i]}"
+            send_to_client(command, self.nextIP, self.nextP)
+        else:
+            command = f"teardown_complete {peer_name}"
+            send_to_server(command, self.DHT[0][1], self.DHT[0][2])
+
+        
         
 
 

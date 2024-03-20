@@ -78,7 +78,9 @@ class Manager:
             del self.peers[peer_name]
             print(self.peers)
             return "SUCCESS"
-    
+        
+    def teardown_complete(self, peer_name):
+        result = 
 
         
 
