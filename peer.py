@@ -117,6 +117,28 @@ class Peer:
         self.createTable(year)
     
     #def dht-rebuilt(self, peer_name, new_leader):
+    
+    def teardown_dht(self, peer_name):
+        if self.DHT[0][0] == peer_name:
+            print(self.DHT)
+            command = f"teardown_peer {self.DHT[1]}"
+            send_to_client(command, self.nextIP, self.nextP)
+            print(self.DHT)
+            return "SUCCESS"
+        else:
+            return "FAILURE"
+        
+    def teardown_peer(self, peer_name): #helper function for traversal of teardown_dht
+        id = 0
+        for i in range(len(self.DHT)):
+            if self.DHT[i] == peer_name:
+                id = i
+                print(self.DHT)
+                break
+        command = f"teardown_peer {self.DHT[i]}"
+        send_to_client(command, self.nextIP, self.nextP)
+        
+
 
 peer = Peer()  
 
