@@ -57,7 +57,7 @@ class Peer:
     #Creates and returns dictionary from csv file   
     def localData(self, year):
         data = {}
-        filePath = f"/afs/asu.edu/users/a/s/b/asbabbit/Data/details-{str(year)}.csv"
+        filePath = f"/afs/asu.edu/users/m/m/c/mmchohan/CSE434/Socket_Project_Final/1950-1952/details-{str(year)}.csv"
         lineNum = 0
         
         with open(filePath, mode='r') as csv_file:

@@ -97,7 +97,7 @@ def recv():
         parse_command(command, ipv4)
 
 def parse_command(command, ipv4):
-    try:
+    #try:
         msg = command.decode('utf-8')
         x = msg.split()
         print(msg)
@@ -114,8 +114,8 @@ def parse_command(command, ipv4):
             result = manager.deregister(x[1])  
         else:
             print('INCORRECT COMMAND')
-    except:
-        print('INCORRECT COMMAND')
+    #except:
+       # print('INCORRECT COMMAND')
 
 def main():
     print("[STARTING] server is starting...")

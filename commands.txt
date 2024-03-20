@@ -5,4 +5,11 @@ register nice 10.120.70.118 49007 49008
 setup_dht test 4 1950
 deregister next
 
+register next 10.120.70.117 49003 49004
+register sleep 10.120.70.154 49007 49008
+register meme 10.120.70.154 49009 49010
+register help 10.120.70.154 49005 49006
+setup_dht next 4 1951
+
+
 python peer.py 10.120.70.118 49000 10.120.70.118 49003 49004
